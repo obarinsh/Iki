@@ -4,14 +4,17 @@ import { useEffect, useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useTranslations, useLocale } from 'next-intl'
-import { Button } from '@/components/ui/button'
-import { Card } from '@/components/ui/card'
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
-import { GradientBackground } from '@/components/shared/GradientBackground'
 import { useIkigaiStore } from '@/lib/store'
-import { cn } from '@/lib/utils'
 
 type RevealStage = 'loading' | 'statement' | 'pillars' | 'intersections' | 'actions' | 'complete'
+
+// Pillar colors
+const PILLAR_COLORS = [
+  'linear-gradient(135deg, #E8614D 0%, #D4784A 100%)',
+  'linear-gradient(135deg, #D4784A 0%, #C49A30 100%)',
+  'linear-gradient(135deg, #7BA05B 0%, #5B8BA0 100%)',
+  'linear-gradient(135deg, #5B8BA0 0%, #7BA05B 100%)',
+]
 
 export default function ResultsPage() {
   const router = useRouter()
@@ -32,20 +35,19 @@ export default function ResultsPage() {
   const [isRateLimited, setIsRateLimited] = useState(false)
   const [retryCountdown, setRetryCountdown] = useState(0)
   const [revealStage, setRevealStage] = useState<RevealStage>('loading')
+  const [expandedPillar, setExpandedPillar] = useState<string | null>(null)
   const hasFetchedRef = useRef(false)
   
   useEffect(() => {
     setMounted(true)
   }, [])
   
-  // Check if user has any completed pillars
   useEffect(() => {
     if (mounted && completedPillars.length === 0) {
       router.push(`/${locale}`)
     }
   }, [mounted, completedPillars.length, router, locale])
   
-  // Fetch analysis
   useEffect(() => {
     if (!mounted) return
     if (fullAnalysis) return
@@ -67,11 +69,10 @@ export default function ResultsPage() {
         const data = await response.json()
         
         if (!response.ok) {
-          // Check for rate limit
           if (response.status === 429 || data.error?.includes('rate limit')) {
             setIsRateLimited(true)
             setRetryCountdown(30)
-            hasFetchedRef.current = false // Allow retry
+            hasFetchedRef.current = false
             return
           }
           throw new Error(data.error || 'Failed to generate analysis')
@@ -80,7 +81,6 @@ export default function ResultsPage() {
         setIsRateLimited(false)
         setFullAnalysis(data)
         
-        // Start reveal sequence
         setRevealStage('statement')
         setTimeout(() => setRevealStage('pillars'), 2000)
         setTimeout(() => setRevealStage('intersections'), 3500)
@@ -90,23 +90,21 @@ export default function ResultsPage() {
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Something went wrong')
         setRevealStage('complete')
-        hasFetchedRef.current = false // Allow retry on error
+        hasFetchedRef.current = false
       } finally {
         setAnalysisLoading(false)
       }
     }
     
     fetchAnalysis()
-  }, [mounted, fullAnalysis]) // Minimal dependencies
+  }, [mounted, fullAnalysis])
   
-  // If already have analysis, skip to complete
   useEffect(() => {
     if (fullAnalysis && revealStage === 'loading') {
       setRevealStage('complete')
     }
   }, [fullAnalysis, revealStage])
   
-  // Countdown timer for rate limit retry
   useEffect(() => {
     if (retryCountdown <= 0) return
     
@@ -128,7 +126,6 @@ export default function ResultsPage() {
     setError(null)
     hasFetchedRef.current = false
     setRevealStage('loading')
-    // Trigger re-fetch by updating mounted state
     setMounted(false)
     setTimeout(() => setMounted(true), 100)
   }
@@ -149,7 +146,6 @@ export default function ResultsPage() {
           url: window.location.href,
         })
       } catch (err) {
-        // Fallback
         await navigator.clipboard.writeText(`${text}\n\n${window.location.href}`)
         alert('Copied to clipboard!')
       }
@@ -159,19 +155,45 @@ export default function ResultsPage() {
     }
   }
   
+  // Loading spinner component
+  const Spinner = () => (
+    <>
+      <div style={{
+        width: '48px',
+        height: '48px',
+        borderRadius: '50%',
+        border: '4px solid rgba(232,97,77,0.2)',
+        borderTopColor: '#E8614D',
+        animation: 'spin 1s linear infinite',
+      }} />
+      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+    </>
+  )
+  
   if (!mounted) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-background">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+      <div style={{
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        background: 'linear-gradient(180deg, #F5E8DA 0%, #F0DBCB 100%)',
+      }}>
+        <Spinner />
       </div>
     )
   }
   
-  // Show loading while redirecting if no completed pillars
   if (completedPillars.length === 0 && !fullAnalysis) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-background">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+      <div style={{
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        background: 'linear-gradient(180deg, #F5E8DA 0%, #F0DBCB 100%)',
+      }}>
+        <Spinner />
       </div>
     )
   }
@@ -181,7 +203,6 @@ export default function ResultsPage() {
   const showIntersections = ['intersections', 'actions', 'complete'].includes(revealStage)
   const showActions = ['actions', 'complete'].includes(revealStage)
 
-  // Map pillar id to translation key
   const pillarKeyMap: Record<string, string> = {
     'love': 'love',
     'good-at': 'goodAt',
@@ -190,78 +211,185 @@ export default function ResultsPage() {
   }
   
   return (
-    <GradientBackground>
-      <div className="min-h-screen px-6 py-8">
+    <div style={{
+      minHeight: '100vh',
+      fontFamily: "'DM Sans', system-ui, sans-serif",
+      background: 'linear-gradient(180deg, #F5E8DA 0%, #F2E0D0 50%, #F0DBCB 100%)',
+      display: 'flex',
+      flexDirection: 'column',
+    }}>
+      {/* Header */}
+      <header style={{
+        padding: '20px 40px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+      }}>
+        <a 
+          href={`/${locale}`}
+          style={{
+            fontFamily: "'Instrument Serif', serif",
+            fontSize: '22px',
+            color: '#3D2E29',
+            letterSpacing: '0.08em',
+            textDecoration: 'none',
+          }}
+        >
+          iKi
+        </a>
+      </header>
+
+      {/* Main Content */}
+      <main style={{ flex: 1, padding: '0 24px 40px' }}>
         {/* Loading State */}
         <AnimatePresence>
           {revealStage === 'loading' && (
             <motion.div 
-              className="flex min-h-[80vh] flex-col items-center justify-center"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                minHeight: '60vh',
+                textAlign: 'center',
+              }}
             >
-              <div className="text-center space-y-4">
-                <div className="relative mx-auto h-16 w-16">
-                  <div className="absolute inset-0 animate-spin rounded-full border-4 border-primary/20 border-t-primary" />
-                </div>
-                <p className="text-lg font-medium">{t('results.synthesizing')}</p>
-                <p className="text-sm text-muted-foreground">{t('results.findingPatterns')}</p>
-              </div>
+              <Spinner />
+              <p style={{ marginTop: '20px', fontSize: '17px', fontWeight: 500, color: '#3D2E29' }}>
+                {t('results.synthesizing')}
+              </p>
+              <p style={{ marginTop: '8px', fontSize: '14px', color: 'rgba(61,46,41,0.55)', fontWeight: 300 }}>
+                {t('results.findingPatterns')}
+              </p>
             </motion.div>
           )}
         </AnimatePresence>
         
         {/* Rate Limit State */}
         {isRateLimited && !fullAnalysis && (
-          <div className="flex min-h-[80vh] items-center justify-center">
-            <Card className="glass p-6 text-center max-w-sm">
-              <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-amber-100">
-                <svg className="h-6 w-6 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            minHeight: '60vh',
+          }}>
+            <div style={{
+              padding: '32px',
+              background: 'rgba(255,255,255,0.6)',
+              backdropFilter: 'blur(8px)',
+              borderRadius: '16px',
+              border: '1px solid rgba(61,46,41,0.08)',
+              textAlign: 'center',
+              maxWidth: '360px',
+            }}>
+              <div style={{
+                width: '48px',
+                height: '48px',
+                margin: '0 auto 16px',
+                borderRadius: '50%',
+                background: '#FEF3C7',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#D97706" strokeWidth="2">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
-              <p className="font-medium">AI Service Busy</p>
-              <p className="mt-2 text-sm text-muted-foreground">
+              <p style={{ fontWeight: 500, color: '#3D2E29', marginBottom: '8px' }}>AI Service Busy</p>
+              <p style={{ fontSize: '14px', color: 'rgba(61,46,41,0.55)', fontWeight: 300, marginBottom: '20px' }}>
                 The free AI tier has reached its limit. Please wait a moment and try again.
               </p>
               {retryCountdown > 0 ? (
-                <p className="mt-4 text-2xl font-mono font-bold text-primary">{retryCountdown}s</p>
+                <p style={{ fontSize: '28px', fontWeight: 700, color: '#E8614D', fontFamily: 'monospace' }}>
+                  {retryCountdown}s
+                </p>
               ) : (
-                <Button onClick={handleRetry} className="mt-4">
+                <button
+                  onClick={handleRetry}
+                  style={{
+                    padding: '12px 24px',
+                    background: '#E8614D',
+                    color: '#fff',
+                    border: 'none',
+                    borderRadius: '12px',
+                    fontSize: '15px',
+                    fontWeight: 500,
+                    cursor: 'pointer',
+                    fontFamily: "'DM Sans', sans-serif",
+                  }}
+                >
                   {t('common.tryAgain')}
-                </Button>
+                </button>
               )}
-            </Card>
+            </div>
           </div>
         )}
         
         {/* Error State */}
         {error && !isRateLimited && (
-          <div className="flex min-h-[80vh] items-center justify-center">
-            <Card className="glass p-6 text-center max-w-sm">
-              <p className="text-destructive font-medium">{t('results.error')}</p>
-              <p className="mt-2 text-sm text-muted-foreground">{error}</p>
-              <Button onClick={() => window.location.reload()} className="mt-4">
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            minHeight: '60vh',
+          }}>
+            <div style={{
+              padding: '32px',
+              background: 'rgba(255,255,255,0.6)',
+              backdropFilter: 'blur(8px)',
+              borderRadius: '16px',
+              border: '1px solid rgba(61,46,41,0.08)',
+              textAlign: 'center',
+              maxWidth: '360px',
+            }}>
+              <p style={{ fontWeight: 500, color: '#DC2626', marginBottom: '8px' }}>{t('results.error')}</p>
+              <p style={{ fontSize: '14px', color: 'rgba(61,46,41,0.55)', fontWeight: 300, marginBottom: '20px' }}>{error}</p>
+              <button
+                onClick={() => window.location.reload()}
+                style={{
+                  padding: '12px 24px',
+                  background: '#E8614D',
+                  color: '#fff',
+                  border: 'none',
+                  borderRadius: '12px',
+                  fontSize: '15px',
+                  fontWeight: 500,
+                  cursor: 'pointer',
+                  fontFamily: "'DM Sans', sans-serif",
+                }}
+              >
                 {t('common.tryAgain')}
-              </Button>
-            </Card>
+              </button>
+            </div>
           </div>
         )}
         
         {/* Results */}
         {fullAnalysis && showStatement && (
-          <div className="max-w-2xl mx-auto space-y-8">
+          <div style={{ maxWidth: '640px', margin: '0 auto' }}>
             
-            {/* THE Ikigai Statement - The Screenshot Moment */}
+            {/* THE Ikigai Statement */}
             <motion.section
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, ease: 'easeOut' }}
-              className="text-center py-12"
+              style={{ textAlign: 'center', padding: '48px 0' }}
             >
-              <p className="text-sm text-muted-foreground mb-4">{t('results.yourIkigai')}</p>
-              <h1 className="font-serif text-3xl md:text-4xl font-medium italic leading-snug text-foreground">
+              <p style={{ fontSize: '13px', color: 'rgba(61,46,41,0.45)', fontWeight: 300, marginBottom: '16px' }}>
+                {t('results.yourIkigai')}
+              </p>
+              <h1 style={{
+                fontFamily: "'Instrument Serif', serif",
+                fontSize: 'clamp(24px, 5vw, 36px)',
+                fontWeight: 400,
+                fontStyle: 'italic',
+                lineHeight: 1.4,
+                color: '#3D2E29',
+              }}>
                 &ldquo;{fullAnalysis.ikigaiStatement}&rdquo;
               </h1>
             </motion.section>
@@ -273,50 +401,106 @@ export default function ResultsPage() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6 }}
-                  className="space-y-4"
+                  style={{ marginBottom: '32px' }}
                 >
-                  <h2 className="font-serif text-xl font-medium">{t('results.fourPillars')}</h2>
+                  <h2 style={{
+                    fontFamily: "'Instrument Serif', serif",
+                    fontSize: '20px',
+                    fontWeight: 400,
+                    color: '#3D2E29',
+                    marginBottom: '16px',
+                  }}>
+                    {t('results.fourPillars')}
+                  </h2>
                   
-                  <Accordion type="single" collapsible className="space-y-2">
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                     {fullAnalysis.pillars.map((pillar, index) => (
-                      <AccordionItem 
-                        key={pillar.id} 
-                        value={pillar.id}
-                        className="glass rounded-xl border-0 overflow-hidden"
+                      <div 
+                        key={pillar.id}
+                        style={{
+                          background: 'rgba(255,255,255,0.5)',
+                          backdropFilter: 'blur(8px)',
+                          borderRadius: '14px',
+                          border: '1px solid rgba(255,255,255,0.6)',
+                          overflow: 'hidden',
+                        }}
                       >
-                        <AccordionTrigger className="px-4 py-3 hover:no-underline">
-                          <div className="flex items-center gap-3 text-left">
-                            <span className={cn(
-                              'flex h-8 w-8 items-center justify-center rounded-full text-xs font-medium text-white',
-                              index === 0 && 'bg-pink-400',
-                              index === 1 && 'bg-amber-400',
-                              index === 2 && 'bg-teal-400',
-                              index === 3 && 'bg-violet-400',
-                            )}>
-                              {index + 1}
-                            </span>
-                            <div>
-                              <p className="font-medium text-sm">
-                                {t(`pillars.${pillarKeyMap[pillar.id]}.title`)}
-                              </p>
-                              <div className="flex gap-1 mt-1">
-                                {pillar.keywords.slice(0, 3).map((kw, i) => (
-                                  <span key={i} className="text-xs text-muted-foreground">
-                                    {kw}{i < 2 && pillar.keywords.length > i + 1 && ' · '}
-                                  </span>
-                                ))}
-                              </div>
+                        <button
+                          onClick={() => setExpandedPillar(expandedPillar === pillar.id ? null : pillar.id)}
+                          style={{
+                            width: '100%',
+                            padding: '16px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '12px',
+                            background: 'none',
+                            border: 'none',
+                            cursor: 'pointer',
+                            textAlign: 'left',
+                            fontFamily: "'DM Sans', sans-serif",
+                          }}
+                        >
+                          <span style={{
+                            width: '32px',
+                            height: '32px',
+                            borderRadius: '50%',
+                            background: PILLAR_COLORS[index],
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontSize: '12px',
+                            fontWeight: 500,
+                            color: '#fff',
+                            flexShrink: 0,
+                          }}>
+                            {index + 1}
+                          </span>
+                          <div style={{ flex: 1 }}>
+                            <p style={{ fontWeight: 500, fontSize: '14px', color: '#3D2E29', marginBottom: '4px' }}>
+                              {t(`pillars.${pillarKeyMap[pillar.id]}.title`)}
+                            </p>
+                            <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
+                              {pillar.keywords.slice(0, 3).map((kw, i) => (
+                                <span key={i} style={{ fontSize: '12px', color: 'rgba(61,46,41,0.5)' }}>
+                                  {kw}{i < 2 && pillar.keywords.length > i + 1 && ' · '}
+                                </span>
+                              ))}
                             </div>
                           </div>
-                        </AccordionTrigger>
-                        <AccordionContent className="px-4 pb-4">
-                          <p className="text-muted-foreground leading-relaxed">
-                            {pillar.summary}
-                          </p>
-                        </AccordionContent>
-                      </AccordionItem>
+                          <svg 
+                            width="20" 
+                            height="20" 
+                            viewBox="0 0 24 24" 
+                            fill="none" 
+                            stroke="rgba(61,46,41,0.4)" 
+                            strokeWidth="2"
+                            style={{
+                              transform: expandedPillar === pillar.id ? 'rotate(180deg)' : 'rotate(0)',
+                              transition: 'transform 0.2s ease',
+                            }}
+                          >
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                          </svg>
+                        </button>
+                        {expandedPillar === pillar.id && (
+                          <div style={{
+                            padding: '0 16px 16px',
+                            borderTop: '1px solid rgba(61,46,41,0.06)',
+                          }}>
+                            <p style={{
+                              fontSize: '14px',
+                              lineHeight: 1.7,
+                              color: 'rgba(61,46,41,0.7)',
+                              fontWeight: 300,
+                              paddingTop: '12px',
+                            }}>
+                              {pillar.summary}
+                            </p>
+                          </div>
+                        )}
+                      </div>
                     ))}
-                  </Accordion>
+                  </div>
                 </motion.section>
               )}
             </AnimatePresence>
@@ -328,19 +512,44 @@ export default function ResultsPage() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6 }}
-                  className="space-y-4"
+                  style={{ marginBottom: '32px' }}
                 >
-                  <h2 className="font-serif text-xl font-medium">{t('results.whereTheyIntersect')}</h2>
+                  <h2 style={{
+                    fontFamily: "'Instrument Serif', serif",
+                    fontSize: '20px',
+                    fontWeight: 400,
+                    color: '#3D2E29',
+                    marginBottom: '16px',
+                  }}>
+                    {t('results.whereTheyIntersect')}
+                  </h2>
                   
-                  <div className="grid gap-3 sm:grid-cols-2">
+                  <div style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
+                    gap: '12px',
+                  }}>
                     {fullAnalysis.intersections.map((intersection) => (
-                      <Card key={intersection.id} className="glass p-4">
-                        <p className="font-medium text-sm">{t(`intersections.${intersection.id}.title`)}</p>
-                        <p className="text-xs text-muted-foreground mb-2">{t(`intersections.${intersection.id}.subtitle`)}</p>
-                        <p className="text-sm text-muted-foreground leading-relaxed">
+                      <div 
+                        key={intersection.id}
+                        style={{
+                          padding: '20px',
+                          background: 'rgba(255,255,255,0.5)',
+                          backdropFilter: 'blur(8px)',
+                          borderRadius: '14px',
+                          border: '1px solid rgba(255,255,255,0.6)',
+                        }}
+                      >
+                        <p style={{ fontWeight: 500, fontSize: '14px', color: '#3D2E29', marginBottom: '2px' }}>
+                          {t(`intersections.${intersection.id}.title`)}
+                        </p>
+                        <p style={{ fontSize: '11px', color: 'rgba(61,46,41,0.4)', fontWeight: 300, marginBottom: '10px' }}>
+                          {t(`intersections.${intersection.id}.subtitle`)}
+                        </p>
+                        <p style={{ fontSize: '14px', lineHeight: 1.6, color: 'rgba(61,46,41,0.7)', fontWeight: 300 }}>
                           {intersection.description}
                         </p>
-                      </Card>
+                      </div>
                     ))}
                   </div>
                 </motion.section>
@@ -354,17 +563,40 @@ export default function ResultsPage() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6 }}
-                  className="space-y-4"
+                  style={{ marginBottom: '32px' }}
                 >
-                  <h2 className="font-serif text-xl font-medium">{t('results.pathsWorthExploring')}</h2>
+                  <h2 style={{
+                    fontFamily: "'Instrument Serif', serif",
+                    fontSize: '20px',
+                    fontWeight: 400,
+                    color: '#3D2E29',
+                    marginBottom: '16px',
+                  }}>
+                    {t('results.pathsWorthExploring')}
+                  </h2>
                   
-                  <div className="space-y-3">
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                     {fullAnalysis.careerPaths.map((path, index) => (
-                      <Card key={index} className="glass p-4">
-                        <p className="font-medium">{path.title}</p>
-                        <p className="text-sm text-muted-foreground mt-1">{path.matchReason}</p>
-                        <p className="text-sm text-primary mt-2">{t('results.firstStep')}: {path.firstStep}</p>
-                      </Card>
+                      <div 
+                        key={index}
+                        style={{
+                          padding: '20px',
+                          background: 'rgba(255,255,255,0.5)',
+                          backdropFilter: 'blur(8px)',
+                          borderRadius: '14px',
+                          border: '1px solid rgba(255,255,255,0.6)',
+                        }}
+                      >
+                        <p style={{ fontWeight: 500, fontSize: '15px', color: '#3D2E29', marginBottom: '6px' }}>
+                          {path.title}
+                        </p>
+                        <p style={{ fontSize: '14px', color: 'rgba(61,46,41,0.6)', fontWeight: 300, marginBottom: '10px' }}>
+                          {path.matchReason}
+                        </p>
+                        <p style={{ fontSize: '13px', color: '#E8614D', fontWeight: 500 }}>
+                          {t('results.firstStep')}: {path.firstStep}
+                        </p>
+                      </div>
                     ))}
                   </div>
                 </motion.section>
@@ -378,21 +610,56 @@ export default function ResultsPage() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6 }}
-                  className="space-y-4"
+                  style={{ marginBottom: '32px' }}
                 >
-                  <h2 className="font-serif text-xl font-medium">{t('results.whatToDoThisWeek')}</h2>
+                  <h2 style={{
+                    fontFamily: "'Instrument Serif', serif",
+                    fontSize: '20px',
+                    fontWeight: 400,
+                    color: '#3D2E29',
+                    marginBottom: '16px',
+                  }}>
+                    {t('results.whatToDoThisWeek')}
+                  </h2>
                   
-                  <div className="space-y-3">
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                     {fullAnalysis.weeklyActions.map((action, index) => (
-                      <Card key={index} className="glass p-4 flex gap-3">
-                        <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-medium text-primary">
+                      <div 
+                        key={index}
+                        style={{
+                          padding: '20px',
+                          background: 'rgba(255,255,255,0.5)',
+                          backdropFilter: 'blur(8px)',
+                          borderRadius: '14px',
+                          border: '1px solid rgba(255,255,255,0.6)',
+                          display: 'flex',
+                          gap: '14px',
+                        }}
+                      >
+                        <span style={{
+                          width: '28px',
+                          height: '28px',
+                          borderRadius: '50%',
+                          background: 'rgba(232,97,77,0.1)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          fontSize: '13px',
+                          fontWeight: 500,
+                          color: '#E8614D',
+                          flexShrink: 0,
+                        }}>
                           {index + 1}
                         </span>
                         <div>
-                          <p className="font-medium text-sm">{action.title}</p>
-                          <p className="text-sm text-muted-foreground mt-1">{action.description}</p>
+                          <p style={{ fontWeight: 500, fontSize: '14px', color: '#3D2E29', marginBottom: '4px' }}>
+                            {action.title}
+                          </p>
+                          <p style={{ fontSize: '14px', color: 'rgba(61,46,41,0.6)', fontWeight: 300, lineHeight: 1.5 }}>
+                            {action.description}
+                          </p>
                         </div>
-                      </Card>
+                      </div>
                     ))}
                   </div>
                 </motion.section>
@@ -401,36 +668,70 @@ export default function ResultsPage() {
             
             {/* Footer CTAs */}
             {revealStage === 'complete' && (
-              <motion.footer
+              <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.5 }}
-                className="space-y-4 pt-8 pb-12"
+                style={{ paddingTop: '24px', paddingBottom: '32px' }}
               >
-                <div className="flex gap-3">
-                  <Button
+                <div style={{ display: 'flex', gap: '12px', marginBottom: '20px' }}>
+                  <button
                     onClick={handleShare}
-                    className="flex-1 rounded-full py-6 bg-primary"
+                    style={{
+                      flex: 1,
+                      padding: '16px 24px',
+                      background: '#E8614D',
+                      color: '#fff',
+                      border: 'none',
+                      borderRadius: '14px',
+                      fontSize: '15px',
+                      fontWeight: 500,
+                      cursor: 'pointer',
+                      fontFamily: "'DM Sans', sans-serif",
+                      boxShadow: '0 4px 20px rgba(232,97,77,0.25)',
+                    }}
                   >
                     {t('common.share')}
-                  </Button>
-                  <Button
+                  </button>
+                  <button
                     onClick={handleStartOver}
-                    variant="outline"
-                    className="flex-1 rounded-full py-6"
+                    style={{
+                      flex: 1,
+                      padding: '16px 24px',
+                      background: 'rgba(255,255,255,0.5)',
+                      color: '#3D2E29',
+                      border: '1px solid rgba(61,46,41,0.1)',
+                      borderRadius: '14px',
+                      fontSize: '15px',
+                      fontWeight: 500,
+                      cursor: 'pointer',
+                      fontFamily: "'DM Sans', sans-serif",
+                    }}
                   >
                     {t('common.startOver')}
-                  </Button>
+                  </button>
                 </div>
                 
-                <p className="text-center text-xs text-muted-foreground">
+                <p style={{ textAlign: 'center', fontSize: '12px', color: 'rgba(61,46,41,0.4)', fontWeight: 300 }}>
                   {t('results.evolves')}
                 </p>
-              </motion.footer>
+              </motion.div>
             )}
           </div>
         )}
-      </div>
-    </GradientBackground>
+      </main>
+
+      {/* Footer */}
+      <footer style={{
+        padding: '24px 40px',
+        borderTop: '1px solid rgba(61,46,41,0.04)',
+        background: '#FFFBF9',
+        textAlign: 'center',
+      }}>
+        <p style={{ fontSize: '12px', color: 'rgba(61,46,41,0.35)', fontWeight: 300 }}>
+          Built with care · Free forever · Your data stays private
+        </p>
+      </footer>
+    </div>
   )
 }
