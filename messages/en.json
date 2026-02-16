@@ -1,0 +1,223 @@
+{
+  "common": {
+    "appName": "iKi",
+    "continue": "Continue",
+    "back": "Back",
+    "share": "Share",
+    "startOver": "Start Over",
+    "viewResults": "View Results",
+    "loading": "Loading...",
+    "error": "Something went wrong",
+    "tryAgain": "Try Again",
+    "free": "Free",
+    "private": "Private",
+    "progressSaved": "Your progress saves automatically"
+  },
+  "landing": {
+    "tagline": "Figure out what's next",
+    "description": "Answer a few questions. Get clarity on where your skills, interests, and opportunities overlap.",
+    "sectionsComplete": "{count}/4 sections complete",
+    "timeEstimate": "~3 min per section. Complete any number. Get insights as you go.",
+    "seeResults": "See What We Found",
+    "viewYourResults": "View Your Results",
+    "beginJourney": "Begin",
+    "whatIsIkigai": "What is Ikigai?",
+    "hide": "Hide",
+    "ikigaiExplanation": "Ikigai is a Japanese concept meaning \"reason for being\" — the intersection of what you love, what you're good at, what the world needs, and what you can be paid for."
+  },
+  "pillars": {
+    "love": {
+      "title": "What You Love",
+      "subtitle": "Activities that energize you",
+      "description": "What makes you lose track of time?"
+    },
+    "goodAt": {
+      "title": "What You're Good At",
+      "subtitle": "Skills and natural abilities",
+      "description": "Where do you have an edge?"
+    },
+    "worldNeeds": {
+      "title": "What The World Needs",
+      "subtitle": "Impact that matters to you",
+      "description": "Where do you want to make a difference?"
+    },
+    "paidFor": {
+      "title": "What You Can Be Paid For",
+      "subtitle": "Practical career reality",
+      "description": "Where does the market value what you offer?"
+    }
+  },
+  "questions": {
+    "love": {
+      "activities": {
+        "question": "Which of these activities energize you?",
+        "hint": "Pick up to 5 that resonate most",
+        "options": {
+          "creating": "Creating things from scratch",
+          "problemSolving": "Solving complex problems",
+          "teaching": "Teaching or explaining",
+          "organizing": "Organizing and planning",
+          "building": "Building relationships",
+          "analyzing": "Analyzing data or patterns",
+          "designing": "Designing experiences",
+          "writing": "Writing or storytelling",
+          "leading": "Leading teams or projects",
+          "researching": "Deep research and learning",
+          "helping": "Helping people directly",
+          "innovating": "Experimenting with new ideas"
+        }
+      },
+      "spectrum": {
+        "question": "What kind of work appeals to you more?",
+        "left": "Creative and open-ended",
+        "right": "Structured and analytical"
+      },
+      "freetext": {
+        "question": "What would you do on a free Saturday with no obligations?",
+        "hint": "Be specific - the details matter",
+        "placeholder": "I would probably..."
+      }
+    },
+    "goodAt": {
+      "skills": {
+        "question": "What do people come to you for help with?",
+        "hint": "Pick the ones you hear most often",
+        "options": {
+          "advice": "Life or career advice",
+          "technical": "Technical problems",
+          "creative": "Creative projects",
+          "writing": "Writing or editing",
+          "planning": "Planning and strategy",
+          "conflict": "Resolving conflicts",
+          "explaining": "Explaining complex things",
+          "decisions": "Making tough decisions",
+          "motivation": "Motivation and support",
+          "organization": "Getting organized",
+          "design": "Design feedback",
+          "numbers": "Numbers and analysis"
+        }
+      },
+      "ranking": {
+        "question": "Rank these by your confidence level",
+        "hint": "Top = most confident",
+        "items": {
+          "communicate": "Communicating clearly",
+          "learn": "Learning new things quickly",
+          "execute": "Executing and finishing",
+          "think": "Strategic thinking",
+          "connect": "Connecting with people"
+        }
+      },
+      "freetext": {
+        "question": "What skill have people complimented that surprised you?",
+        "hint": "Often our best abilities feel invisible to us",
+        "placeholder": "People have told me I'm good at..."
+      }
+    },
+    "worldNeeds": {
+      "causes": {
+        "question": "Which problems do you care about solving?",
+        "hint": "Pick the ones that genuinely bother you",
+        "options": {
+          "education": "Education access",
+          "health": "Health and wellness",
+          "environment": "Environment and climate",
+          "inequality": "Economic inequality",
+          "mentalHealth": "Mental health",
+          "technology": "Ethical technology",
+          "community": "Local community",
+          "creativity": "Arts and culture",
+          "justice": "Social justice",
+          "innovation": "Scientific progress",
+          "connection": "Human connection",
+          "productivity": "Work and productivity"
+        }
+      },
+      "spectrum": {
+        "question": "What scale of impact appeals to you?",
+        "left": "Deep impact on few people",
+        "right": "Broad impact on many"
+      },
+      "freetext": {
+        "question": "Who do you most want to help, and why them specifically?",
+        "hint": "Be specific about the people and your connection to them",
+        "placeholder": "I want to help..."
+      }
+    },
+    "paidFor": {
+      "industries": {
+        "question": "Which industries or fields interest you?",
+        "hint": "Pick ones you'd genuinely explore",
+        "options": {
+          "tech": "Technology",
+          "healthcare": "Healthcare",
+          "education": "Education",
+          "finance": "Finance",
+          "creative": "Creative industries",
+          "nonprofit": "Nonprofit / NGO",
+          "consulting": "Consulting",
+          "startups": "Startups",
+          "government": "Government / Public sector",
+          "media": "Media / Entertainment",
+          "retail": "Retail / E-commerce",
+          "manufacturing": "Manufacturing / Hardware"
+        }
+      },
+      "spectrum": {
+        "question": "What matters more in your work setup?",
+        "left": "Stability and security",
+        "right": "Flexibility and autonomy"
+      },
+      "freetext": {
+        "question": "What work have you enjoyed getting paid for, and what made it good?",
+        "hint": "Even small gigs or side projects count",
+        "placeholder": "I've enjoyed getting paid to..."
+      }
+    }
+  },
+  "completion": {
+    "title": "{pillar} complete",
+    "description": "We captured your responses. What would you like to do next?",
+    "seeInsight": "See what we noticed",
+    "continueNext": "Continue to next section",
+    "viewResults": "View results now"
+  },
+  "insight": {
+    "analyzing": "Analyzing your responses...",
+    "whatWeNoticed": "What we noticed about",
+    "continueNext": "Continue to next section",
+    "viewResults": "View full results",
+    "error": "Could not generate insight",
+    "continueAnyway": "Continue anyway"
+  },
+  "results": {
+    "synthesizing": "Synthesizing your responses...",
+    "findingPatterns": "Finding the patterns that make you, you",
+    "yourIkigai": "Your Ikigai",
+    "fourPillars": "The Four Pillars",
+    "whereTheyIntersect": "Where They Intersect",
+    "pathsWorthExploring": "Paths Worth Exploring",
+    "whatToDoThisWeek": "What to Do This Week",
+    "firstStep": "First step",
+    "evolves": "Your Ikigai evolves with you. Come back anytime.",
+    "error": "Could not generate your results"
+  },
+  "intersections": {
+    "passion": {
+      "title": "Your Passion",
+      "subtitle": "Where love meets ability"
+    },
+    "mission": {
+      "title": "Your Mission",
+      "subtitle": "Where love meets purpose"
+    },
+    "profession": {
+      "title": "Your Profession",
+      "subtitle": "Where ability meets market"
+    },
+    "vocation": {
+      "title": "Your Vocation",
+      "subtitle": "Where purpose meets market"
+    }
+  }
+}

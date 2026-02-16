@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 700" width="600" height="700">
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&amp;family=Instrument+Serif:ital@0;1&amp;display=swap');
+      .label-main { font-family: 'DM Sans', system-ui, sans-serif; font-size: 11px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; fill: #3D2E29; text-anchor: middle; }
+      .label-intersection { font-family: 'DM Sans', system-ui, sans-serif; font-size: 10.5px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; fill: #E8614D; text-anchor: middle; }
+      .label-center { font-family: 'Instrument Serif', serif; font-size: 18px; font-weight: 400; letter-spacing: 0.06em; fill: #3D2E29; text-anchor: middle; }
+      .label-outer { font-family: 'DM Sans', system-ui, sans-serif; font-size: 10px; font-weight: 300; letter-spacing: 0.06em; fill: #8B7B74; text-anchor: middle; }
+      .label-outer-bold { font-family: 'DM Sans', system-ui, sans-serif; font-size: 10px; font-weight: 500; letter-spacing: 0.06em; fill: #6B5B54; text-anchor: middle; }
+    </style>
+  </defs>
+
+  <!-- Background -->
+  <rect width="600" height="700" fill="none"/>
+
+  <!-- Four circles -->
+  <!-- Top: What You Love -->
+  <circle cx="300" cy="240" r="140" fill="none" stroke="#3D2E29" stroke-width="0.8" opacity="0.25"/>
+  <!-- Left: What You're Good At -->
+  <circle cx="220" cy="350" r="140" fill="none" stroke="#3D2E29" stroke-width="0.8" opacity="0.25"/>
+  <!-- Right: What The World Needs -->
+  <circle cx="380" cy="350" r="140" fill="none" stroke="#3D2E29" stroke-width="0.8" opacity="0.25"/>
+  <!-- Bottom: What You Can Be Paid For -->
+  <circle cx="300" cy="450" r="140" fill="none" stroke="#3D2E29" stroke-width="0.8" opacity="0.25"/>
+
+  <!-- Outer labels -->
+  <!-- Top: What You Love -->
+  <text x="300" y="102" class="label-outer">WHAT YOU</text>
+  <text x="300" y="116" class="label-outer-bold">LOVE</text>
+
+  <!-- Left: What You're Good At -->
+  <text x="100" y="345" class="label-outer">WHAT YOU'RE</text>
+  <text x="100" y="359" class="label-outer-bold">GOOD AT</text>
+
+  <!-- Right: What The World Needs -->
+  <text x="500" y="345" class="label-outer">WHAT THE</text>
+  <text x="500" y="359" class="label-outer-bold">WORLD NEEDS</text>
+
+  <!-- Bottom: What You Can Be Paid For -->
+  <text x="300" y="590" class="label-outer">WHAT YOU CAN BE</text>
+  <text x="300" y="604" class="label-outer-bold">PAID FOR</text>
+
+  <!-- Intersection labels -->
+  <!-- Top-left: Passion (Love + Good At) -->
+  <text x="228" y="268" class="label-intersection">PASSION</text>
+
+  <!-- Top-right: Mission (Love + World Needs) -->
+  <text x="372" y="268" class="label-intersection">MISSION</text>
+
+  <!-- Bottom-left: Profession (Good At + Paid For) -->
+  <text x="228" y="438" class="label-intersection">PROFESSION</text>
+
+  <!-- Bottom-right: Vocation (World Needs + Paid For) -->
+  <text x="372" y="438" class="label-intersection">VOCATION</text>
+
+  <!-- Center: IKIGAI -->
+  <text x="300" y="355" class="label-center">IKIGAI</text>
+
+  <!-- Title -->
+  <text x="300" y="46" style="font-family: 'Instrument Serif', serif; font-size: 28px; font-weight: 400; letter-spacing: 0.04em; fill: #3D2E29; text-anchor: middle;">Finding Purpose in Life</text>
+
+  <!-- Bottom caption -->
+  <text x="300" y="656" style="font-family: 'DM Sans', system-ui, sans-serif; font-size: 11px; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; fill: #3D2E29; text-anchor: middle;">IKIGAI</text>
+  <text x="300" y="674" style="font-family: 'DM Sans', system-ui, sans-serif; font-size: 9px; font-weight: 300; letter-spacing: 0.1em; fill: #A89890; text-anchor: middle;">WHAT IT IS &amp; HOW TO FIND IT</text>
+</svg>

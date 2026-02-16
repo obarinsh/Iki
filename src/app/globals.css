@@ -1,0 +1,268 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-sans);
+  --font-serif: var(--font-serif);
+  
+  /* Gradient colors for backgrounds */
+  --color-gradient-peach: var(--gradient-peach);
+  --color-gradient-pink: var(--gradient-pink);
+  --color-gradient-orange: var(--gradient-orange);
+  --color-gradient-yellow: var(--gradient-yellow);
+  --color-gradient-cream: var(--gradient-cream);
+  
+  /* shadcn colors */
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+  --radius-4xl: calc(var(--radius) + 16px);
+}
+
+:root {
+  /* Base radius */
+  --radius: 1rem;
+  
+  /* iKi Design System Colors */
+  --text-primary: #3D2E29;
+  --text-secondary: rgba(61, 46, 41, 0.55);
+  --text-tertiary: rgba(61, 46, 41, 0.35);
+  --coral-accent: #E8614D;
+  --golden-accent: #C49A30;
+  
+  /* Pillar accents */
+  --pillar-love: #E8614D;
+  --pillar-good-at: #D4784A;
+  --pillar-world-needs: #7BA05B;
+  --pillar-paid-for: #5B8BA0;
+  
+  /* Background tonal progression */
+  --bg-hero-top: #F0DBC8;
+  --bg-hero-bottom: #F0DBCB;
+  --bg-how-top: #F0DBCB;
+  --bg-how-bottom: #F5E8DA;
+  --bg-pillars-top: #F5E8DA;
+  --bg-pillars-bottom: #FAF2EA;
+  --bg-results-top: #FAF2EA;
+  --bg-results-bottom: #FDF8F4;
+  --bg-cta-top: #FDF8F4;
+  --bg-cta-bottom: #FFFBF9;
+  --bg-footer: #FFFBF9;
+  
+  /* Main colors - warm cream theme */
+  --background: #F0DBC8;
+  --foreground: #3D2E29;
+  
+  /* Gradient colors (legacy) */
+  --gradient-peach: #FFCBA4;
+  --gradient-pink: #FFB5C5;
+  --gradient-orange: #E8614D;
+  --gradient-yellow: #C49A30;
+  --gradient-cream: #FFF5EB;
+  
+  /* Card & surfaces */
+  --card: rgba(255, 255, 255, 0.8);
+  --card-foreground: #3D2E29;
+  --popover: #FFFFFF;
+  --popover-foreground: #3D2E29;
+  
+  /* Primary - coral accent */
+  --primary: #E8614D;
+  --primary-foreground: #FFFFFF;
+  
+  /* Secondary - soft peach */
+  --secondary: #FFF0E8;
+  --secondary-foreground: #3D2E29;
+  
+  /* Muted - light cream */
+  --muted: #FAF2EA;
+  --muted-foreground: rgba(61, 46, 41, 0.55);
+  
+  /* Accent - golden */
+  --accent: #C49A30;
+  --accent-foreground: #3D2E29;
+  
+  /* Utility */
+  --destructive: #E53935;
+  --border: rgba(61, 46, 41, 0.1);
+  --input: rgba(61, 46, 41, 0.1);
+  --ring: #E8614D;
+}
+
+/* Font imports */
+@font-face {
+  font-family: 'Playfair Display';
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url('https://fonts.gstatic.com/s/playfairdisplay/v37/nuFvD-vYSZviVYUb_rj3ij__anPXJzDwcbmjWBN2PKdFvXDXbtM.woff2') format('woff2');
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: 'DM Sans', system-ui, -apple-system, sans-serif;
+    color: var(--text-primary);
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Instrument Serif', Georgia, serif;
+  }
+}
+
+/* RTL support for Hebrew */
+[dir="rtl"] {
+  text-align: right;
+}
+
+/* Gradient blob animation */
+@keyframes blob {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+  }
+  25% {
+    transform: translate(20px, -30px) scale(1.1);
+  }
+  50% {
+    transform: translate(-20px, 20px) scale(0.9);
+  }
+  75% {
+    transform: translate(30px, 10px) scale(1.05);
+  }
+}
+
+.animate-blob {
+  animation: blob 20s infinite ease-in-out;
+}
+
+.animation-delay-2000 {
+  animation-delay: 2s;
+}
+
+.animation-delay-4000 {
+  animation-delay: 4s;
+}
+
+.animation-delay-6000 {
+  animation-delay: 6s;
+}
+
+/* Glassmorphism effect */
+.glass {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* Gradient text */
+.gradient-text {
+  background: linear-gradient(135deg, var(--gradient-orange), var(--gradient-pink));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Hide scrollbar */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Landing page animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleIn {
+  from { 
+    opacity: 0; 
+    transform: scale(0.98); 
+  }
+  to { 
+    opacity: 1; 
+    transform: scale(1); 
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.6s ease-out both;
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.2s ease-out both;
+}
+
+@keyframes fadeUp {
+  from { 
+    opacity: 0; 
+    transform: translateY(16px); 
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0); 
+  }
+}
+
+.animate-fade-up {
+  animation: fadeUp 0.7s ease-out 0.2s both;
+}
+
+/* Tooltip animation */
+@keyframes tooltipIn {
+  from { 
+    opacity: 0; 
+    transform: scale(0.97); 
+  }
+  to { 
+    opacity: 1; 
+    transform: scale(1); 
+  }
+}
+
+.animate-tooltip-in {
+  animation: tooltipIn 0.2s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+/* Natural easing used throughout */
+.ease-natural {
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
