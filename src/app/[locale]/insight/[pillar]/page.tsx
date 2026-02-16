@@ -98,9 +98,22 @@ export default function InsightPage() {
     fetchInsight()
   }, [mounted, existingInsight, pillarId])
   
+  // Define pillar sequence
+  const PILLAR_SEQUENCE: IkigaiSection[] = ['love', 'good-at', 'world-needs', 'paid-for']
+  
   const handleContinue = () => {
-    setCurrentPillar(null)
-    router.push(`/${locale}`)
+    // Find the next pillar in sequence
+    const currentIndex = PILLAR_SEQUENCE.indexOf(pillarId)
+    const nextPillar = PILLAR_SEQUENCE[currentIndex + 1]
+    
+    if (nextPillar) {
+      // Move to next pillar
+      setCurrentPillar(nextPillar)
+      router.push(`/${locale}/questions`)
+    } else {
+      // All pillars complete - go to results
+      router.push(`/${locale}/results`)
+    }
   }
   
   const handleResults = () => {

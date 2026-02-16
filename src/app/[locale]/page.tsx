@@ -713,9 +713,9 @@ export default function Home() {
                 >
                   {card.num}
                 </span>
-                <div className="relative">
+                <div className="relative pt-2">
                   <span
-                    className="text-[11px] font-medium tracking-wider uppercase"
+                    className="text-[11px] font-medium tracking-wider uppercase block mb-3"
                     style={{ color: card.accent }}
                   >
                     {card.num}

@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useTranslations, useLocale } from 'next-intl'
 import { useIkigaiStore, IkigaiSection, AnswerValue } from '@/lib/store'
-import { getPillarById, Question, PILLARS } from '@/lib/questions'
+import { getPillarById, Question } from '@/lib/questions'
 
 const SECTIONS = [
   { id: 'love', label: 'Love', key: 'love' },
@@ -411,7 +411,18 @@ export default function QuestionsPage() {
       setCurrentQuestionIndex(currentQuestionIndex + 1)
     } else {
       completePillar(currentPillar)
-      setShowCompletion(true)
+      
+      // Check if this is the last pillar
+      const currentIndex = SECTIONS.findIndex(s => s.id === currentPillar)
+      const isLastPillar = currentIndex === SECTIONS.length - 1
+      
+      if (isLastPillar) {
+        // All pillars complete - go directly to results
+        router.push(`/${locale}/results`)
+      } else {
+        // Show completion screen for intermediate pillars
+        setShowCompletion(true)
+      }
     }
   }
   
@@ -431,9 +442,20 @@ export default function QuestionsPage() {
     handleNext()
   }
   
-  const handleContinue = () => {
-    setCurrentPillar(null)
-    router.push(`/${locale}`)
+  const handleContinueToNextPillar = () => {
+    // Find the next pillar in sequence
+    const currentIndex = SECTIONS.findIndex(s => s.id === currentPillar)
+    const nextPillar = SECTIONS[currentIndex + 1]
+    
+    if (nextPillar) {
+      // Move to next pillar
+      setCurrentPillar(nextPillar.id as IkigaiSection)
+      setCurrentQuestionIndex(0)
+      setShowCompletion(false)
+    } else {
+      // All pillars complete - go to results
+      router.push(`/${locale}/results`)
+    }
   }
   
   const handleSeeInsight = () => {
@@ -558,7 +580,7 @@ export default function QuestionsPage() {
                 </button>
                 
                 <button
-                  onClick={handleContinue}
+                  onClick={handleContinueToNextPillar}
                   style={{
                     padding: '16px 32px',
                     background: '#E8614D',
