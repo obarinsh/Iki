@@ -9,10 +9,10 @@ import { getPillarById } from '@/lib/questions'
 
 // Pillar colors for the icon
 const PILLAR_COLORS: Record<string, string> = {
-  'love': 'linear-gradient(135deg, #E8614D 0%, #D4784A 100%)',
-  'good-at': 'linear-gradient(135deg, #D4784A 0%, #C49A30 100%)',
-  'world-needs': 'linear-gradient(135deg, #7BA05B 0%, #5B8BA0 100%)',
-  'paid-for': 'linear-gradient(135deg, #5B8BA0 0%, #7BA05B 100%)',
+  'love': 'linear-gradient(135deg, #E8614D 0%, #D4784A 100%)',      // Coral
+  'good-at': 'linear-gradient(135deg, #D4784A 0%, #C49A30 100%)',   // Amber
+  'world-needs': 'linear-gradient(135deg, #7BA05B 0%, #5A9A5A 100%)', // Green
+  'paid-for': 'linear-gradient(135deg, #5B8BA0 0%, #4A7A99 100%)',  // Blue
 }
 
 export default function InsightPage() {

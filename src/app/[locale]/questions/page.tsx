@@ -33,14 +33,32 @@ function MultiSelectPills({
   onChange: (value: string[]) => void
   maxSelections?: number
 }) {
-  const atMax = value.length >= maxSelections
+  // Separate predefined selections from custom ones
+  const predefinedSelections = value.filter(v => !v.startsWith('custom:'))
+  const customSelections = value.filter(v => v.startsWith('custom:')).map(v => v.replace('custom:', ''))
+  const [customInput, setCustomInput] = useState('')
+  
+  const totalSelected = predefinedSelections.length + customSelections.length
+  const atMax = totalSelected >= maxSelections
 
   function toggle(id: string) {
-    if (value.includes(id)) {
+    if (predefinedSelections.includes(id)) {
       onChange(value.filter(v => v !== id))
     } else if (!atMax) {
       onChange([...value, id])
     }
+  }
+  
+  function addCustomOption() {
+    const trimmed = customInput.trim()
+    if (trimmed && !atMax && !customSelections.includes(trimmed)) {
+      onChange([...value, `custom:${trimmed}`])
+      setCustomInput('')
+    }
+  }
+  
+  function removeCustomOption(text: string) {
+    onChange(value.filter(v => v !== `custom:${text}`))
   }
 
   return (
@@ -49,10 +67,10 @@ function MultiSelectPills({
         display: 'grid',
         gridTemplateColumns: 'repeat(2, 1fr)',
         gap: '10px',
-        marginBottom: '20px',
+        marginBottom: '16px',
       }}>
         {options.map((option) => {
-          const isSelected = value.includes(option.id)
+          const isSelected = predefinedSelections.includes(option.id)
           const isDisabled = atMax && !isSelected
           return (
             <button
@@ -108,6 +126,101 @@ function MultiSelectPills({
           )
         })}
       </div>
+      
+      {/* Custom options display */}
+      {customSelections.length > 0 && (
+        <div style={{
+          display: 'flex',
+          flexWrap: 'wrap',
+          gap: '8px',
+          marginBottom: '16px',
+        }}>
+          {customSelections.map((text) => (
+            <span
+              key={text}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '8px 12px',
+                borderRadius: '20px',
+                background: 'rgba(232,97,77,0.12)',
+                color: '#E8614D',
+                fontSize: '13px',
+                fontWeight: 500,
+              }}
+            >
+              {text}
+              <button
+                onClick={() => removeCustomOption(text)}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  padding: '0',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                }}
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#E8614D" strokeWidth="2">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </span>
+          ))}
+        </div>
+      )}
+      
+      {/* Add your own option */}
+      <div style={{
+        display: 'flex',
+        gap: '8px',
+        marginBottom: '16px',
+      }}>
+        <input
+          type="text"
+          value={customInput}
+          onChange={(e) => setCustomInput(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault()
+              addCustomOption()
+            }
+          }}
+          placeholder="Add your own..."
+          disabled={atMax}
+          style={{
+            flex: 1,
+            padding: '12px 16px',
+            borderRadius: '12px',
+            border: '1px solid rgba(61,46,41,0.1)',
+            background: atMax ? 'rgba(61,46,41,0.03)' : 'rgba(255,255,255,0.5)',
+            fontSize: '14px',
+            fontFamily: "'DM Sans', sans-serif",
+            color: '#3D2E29',
+            outline: 'none',
+            opacity: atMax ? 0.5 : 1,
+          }}
+        />
+        <button
+          onClick={addCustomOption}
+          disabled={atMax || !customInput.trim()}
+          style={{
+            padding: '12px 20px',
+            borderRadius: '12px',
+            border: 'none',
+            background: (atMax || !customInput.trim()) ? 'rgba(61,46,41,0.1)' : '#E8614D',
+            color: (atMax || !customInput.trim()) ? 'rgba(61,46,41,0.3)' : '#fff',
+            fontSize: '14px',
+            fontWeight: 500,
+            fontFamily: "'DM Sans', sans-serif",
+            cursor: (atMax || !customInput.trim()) ? 'default' : 'pointer',
+            transition: 'all 0.2s ease',
+          }}
+        >
+          Add
+        </button>
+      </div>
 
       {/* Selection counter */}
       <div style={{ textAlign: 'center' }}>
@@ -117,7 +230,7 @@ function MultiSelectPills({
           color: atMax ? '#E8614D' : 'rgba(61,46,41,0.35)',
           transition: 'color 0.3s ease',
         }}>
-          {value.length} of {maxSelections} selected
+          {totalSelected} of {maxSelections} selected
           {atMax && (
             <span style={{
               marginLeft: '8px',
@@ -125,7 +238,7 @@ function MultiSelectPills({
               color: 'rgba(61,46,41,0.3)',
               fontWeight: 300,
             }}>
-              — tap a selection to swap
+              — remove one to add another
             </span>
           )}
         </span>
@@ -146,6 +259,18 @@ function SpectrumSliderRefined({
   onChange: (value: number) => void
 }) {
   const sliderId = `slider-${Math.random().toString(36).substr(2, 9)}`
+  const [isDragging, setIsDragging] = useState(false)
+  
+  // Determine which label to show based on value
+  const getFeedbackText = () => {
+    if (value < 30) return leftLabel
+    if (value > 70) return rightLabel
+    return 'Balanced'
+  }
+  
+  // Determine highlight for labels
+  const leftHighlight = value < 40
+  const rightHighlight = value > 60
   
   return (
     <div style={{ padding: '20px 0' }}>
@@ -154,60 +279,316 @@ function SpectrumSliderRefined({
         justifyContent: 'space-between',
         marginBottom: '16px',
         fontSize: '13px',
-        color: 'rgba(61,46,41,0.55)',
         fontWeight: 300,
       }}>
-        <span>{leftLabel}</span>
-        <span>{rightLabel}</span>
+        <span style={{
+          color: leftHighlight ? '#E8614D' : 'rgba(61,46,41,0.55)',
+          fontWeight: leftHighlight ? 500 : 300,
+          transition: 'all 0.2s ease',
+        }}>
+          {leftLabel}
+        </span>
+        <span style={{
+          color: rightHighlight ? '#E8614D' : 'rgba(61,46,41,0.55)',
+          fontWeight: rightHighlight ? 500 : 300,
+          transition: 'all 0.2s ease',
+        }}>
+          {rightLabel}
+        </span>
       </div>
-      <style>{`
-        #${sliderId}::-webkit-slider-thumb {
-          -webkit-appearance: none;
-          appearance: none;
-          width: 24px;
-          height: 24px;
-          border-radius: 50%;
-          background: #E8614D;
-          cursor: pointer;
-          border: 3px solid #fff;
-          box-shadow: 0 2px 8px rgba(232,97,77,0.3);
-          margin-top: -8px;
-        }
-        #${sliderId}::-moz-range-thumb {
-          width: 24px;
-          height: 24px;
-          border-radius: 50%;
-          background: #E8614D;
-          cursor: pointer;
-          border: 3px solid #fff;
-          box-shadow: 0 2px 8px rgba(232,97,77,0.3);
-        }
-        #${sliderId}::-webkit-slider-runnable-track {
-          height: 8px;
-          border-radius: 4px;
-        }
-        #${sliderId}::-moz-range-track {
-          height: 8px;
-          border-radius: 4px;
-        }
-      `}</style>
-      <input
-        id={sliderId}
-        type="range"
-        min={0}
-        max={100}
-        value={value}
-        onChange={(e) => onChange(Number(e.target.value))}
-        style={{
-          width: '100%',
-          height: '8px',
-          borderRadius: '4px',
-          background: `linear-gradient(to right, #E8614D ${value}%, rgba(61,46,41,0.1) ${value}%)`,
-          appearance: 'none',
-          WebkitAppearance: 'none',
-          cursor: 'pointer',
-        }}
-      />
+      
+      {/* Slider container with tooltip */}
+      <div style={{ position: 'relative' }}>
+        {/* Floating feedback bubble */}
+        <div style={{
+          position: 'absolute',
+          left: `${value}%`,
+          transform: 'translateX(-50%)',
+          bottom: '32px',
+          padding: '6px 12px',
+          borderRadius: '8px',
+          background: '#E8614D',
+          color: '#fff',
+          fontSize: '12px',
+          fontWeight: 500,
+          whiteSpace: 'nowrap',
+          opacity: isDragging ? 1 : 0,
+          transition: 'opacity 0.15s ease',
+          pointerEvents: 'none',
+          boxShadow: '0 4px 12px rgba(232,97,77,0.3)',
+        }}>
+          {getFeedbackText()}
+          {/* Arrow */}
+          <div style={{
+            position: 'absolute',
+            bottom: '-6px',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            width: 0,
+            height: 0,
+            borderLeft: '6px solid transparent',
+            borderRight: '6px solid transparent',
+            borderTop: '6px solid #E8614D',
+          }} />
+        </div>
+        
+        <style>{`
+          #${sliderId}::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #E8614D;
+            cursor: grab;
+            border: 3px solid #fff;
+            box-shadow: 0 2px 12px rgba(232,97,77,0.4);
+            margin-top: -10px;
+            transition: transform 0.1s ease, box-shadow 0.1s ease;
+          }
+          #${sliderId}::-webkit-slider-thumb:active {
+            cursor: grabbing;
+            transform: scale(1.1);
+            box-shadow: 0 4px 16px rgba(232,97,77,0.5);
+          }
+          #${sliderId}::-moz-range-thumb {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #E8614D;
+            cursor: grab;
+            border: 3px solid #fff;
+            box-shadow: 0 2px 12px rgba(232,97,77,0.4);
+          }
+          #${sliderId}::-moz-range-thumb:active {
+            cursor: grabbing;
+            transform: scale(1.1);
+          }
+          #${sliderId}::-webkit-slider-runnable-track {
+            height: 8px;
+            border-radius: 4px;
+          }
+          #${sliderId}::-moz-range-track {
+            height: 8px;
+            border-radius: 4px;
+          }
+        `}</style>
+        <input
+          id={sliderId}
+          type="range"
+          min={0}
+          max={100}
+          value={value}
+          onChange={(e) => onChange(Number(e.target.value))}
+          onMouseDown={() => setIsDragging(true)}
+          onMouseUp={() => setIsDragging(false)}
+          onMouseLeave={() => setIsDragging(false)}
+          onTouchStart={() => setIsDragging(true)}
+          onTouchEnd={() => setIsDragging(false)}
+          style={{
+            width: '100%',
+            height: '8px',
+            borderRadius: '4px',
+            background: `linear-gradient(to right, #E8614D ${value}%, rgba(61,46,41,0.1) ${value}%)`,
+            appearance: 'none',
+            WebkitAppearance: 'none',
+            cursor: 'pointer',
+          }}
+        />
+      </div>
+      
+      {/* Current position indicator */}
+      <div style={{
+        textAlign: 'center',
+        marginTop: '12px',
+        fontSize: '12px',
+        color: 'rgba(61,46,41,0.4)',
+        fontWeight: 300,
+      }}>
+        {value < 40 ? `Leaning ${leftLabel.toLowerCase()}` : 
+         value > 60 ? `Leaning ${rightLabel.toLowerCase()}` : 
+         'Balanced between both'}
+      </div>
+    </div>
+  )
+}
+
+function RankingList({
+  items,
+  value,
+  onChange,
+}: {
+  items: { id: string; label: string }[]
+  value: string[]
+  onChange: (value: string[]) => void
+}) {
+  const [draggedItem, setDraggedItem] = useState<string | null>(null)
+  
+  // Items not yet ranked
+  const unrankedItems = items.filter(item => !value.includes(item.id))
+  // Items already ranked (in order)
+  const rankedItems = value.map(id => items.find(item => item.id === id)).filter(Boolean) as { id: string; label: string }[]
+  
+  const handleAddToRanking = (id: string) => {
+    if (!value.includes(id)) {
+      onChange([...value, id])
+    }
+  }
+  
+  const handleRemoveFromRanking = (id: string) => {
+    onChange(value.filter(v => v !== id))
+  }
+  
+  const handleDragStart = (e: React.DragEvent, id: string) => {
+    setDraggedItem(id)
+    e.dataTransfer.effectAllowed = 'move'
+  }
+  
+  const handleDragOver = (e: React.DragEvent, targetId: string) => {
+    e.preventDefault()
+    if (!draggedItem || draggedItem === targetId) return
+    
+    const draggedIndex = value.indexOf(draggedItem)
+    const targetIndex = value.indexOf(targetId)
+    
+    if (draggedIndex === -1 || targetIndex === -1) return
+    
+    const newValue = [...value]
+    newValue.splice(draggedIndex, 1)
+    newValue.splice(targetIndex, 0, draggedItem)
+    onChange(newValue)
+  }
+  
+  const handleDragEnd = () => {
+    setDraggedItem(null)
+  }
+
+  return (
+    <div>
+      {/* Ranked items */}
+      {rankedItems.length > 0 && (
+        <div style={{ marginBottom: '20px' }}>
+          <p style={{ fontSize: '12px', color: 'rgba(61,46,41,0.45)', marginBottom: '10px', fontWeight: 500 }}>
+            Your ranking (drag to reorder):
+          </p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            {rankedItems.map((item, index) => (
+              <div
+                key={item.id}
+                draggable
+                onDragStart={(e) => handleDragStart(e, item.id)}
+                onDragOver={(e) => handleDragOver(e, item.id)}
+                onDragEnd={handleDragEnd}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '12px',
+                  padding: '14px 16px',
+                  borderRadius: '12px',
+                  background: draggedItem === item.id 
+                    ? 'rgba(232,97,77,0.15)' 
+                    : 'rgba(232,97,77,0.08)',
+                  border: '1.5px solid #E8614D',
+                  cursor: 'grab',
+                  transition: 'all 0.15s ease',
+                  opacity: draggedItem === item.id ? 0.7 : 1,
+                }}
+              >
+                <span style={{
+                  width: '24px',
+                  height: '24px',
+                  borderRadius: '50%',
+                  background: '#E8614D',
+                  color: '#fff',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '12px',
+                  fontWeight: 600,
+                  flexShrink: 0,
+                }}>
+                  {index + 1}
+                </span>
+                <span style={{ flex: 1, fontSize: '14px', color: '#E8614D', fontWeight: 500 }}>
+                  {item.label}
+                </span>
+                <button
+                  onClick={() => handleRemoveFromRanking(item.id)}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    padding: '4px',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    opacity: 0.6,
+                  }}
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#E8614D" strokeWidth="2">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#E8614D" strokeWidth="2" style={{ opacity: 0.4 }}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M4 8h16M4 16h16" />
+                </svg>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+      
+      {/* Unranked items to choose from */}
+      {unrankedItems.length > 0 && (
+        <div>
+          <p style={{ fontSize: '12px', color: 'rgba(61,46,41,0.45)', marginBottom: '10px', fontWeight: 500 }}>
+            {rankedItems.length > 0 ? 'Tap to add:' : 'Tap to start ranking:'}
+          </p>
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(2, 1fr)',
+            gap: '10px',
+          }}>
+            {unrankedItems.map((item) => (
+              <button
+                key={item.id}
+                onClick={() => handleAddToRanking(item.id)}
+                style={{
+                  padding: '14px 16px',
+                  borderRadius: '12px',
+                  border: '1px solid rgba(61,46,41,0.08)',
+                  background: 'rgba(255,255,255,0.45)',
+                  backdropFilter: 'blur(8px)',
+                  color: 'rgba(61,46,41,0.6)',
+                  fontSize: '14px',
+                  fontWeight: 400,
+                  fontFamily: "'DM Sans', sans-serif",
+                  cursor: 'pointer',
+                  textAlign: 'left',
+                  transition: 'all 0.2s ease',
+                }}
+              >
+                {item.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+      
+      {/* Status */}
+      <div style={{ textAlign: 'center', marginTop: '16px' }}>
+        <span style={{
+          fontSize: '13px',
+          fontWeight: 400,
+          color: rankedItems.length === items.length ? '#E8614D' : 'rgba(61,46,41,0.35)',
+        }}>
+          {rankedItems.length} of {items.length} ranked
+          {rankedItems.length === items.length && (
+            <span style={{ marginLeft: '8px', fontSize: '12px', color: 'rgba(61,46,41,0.3)', fontWeight: 300 }}>
+              — drag to reorder
+            </span>
+          )}
+        </span>
+      </div>
     </div>
   )
 }
@@ -307,11 +688,10 @@ function QuestionRenderer({
           : item.label
       }))
       return (
-        <MultiSelectPills
-          options={translatedItems}
+        <RankingList
+          items={translatedItems}
           value={(value as string[]) || []}
           onChange={onChange}
-          maxSelections={question.items.length}
         />
       )
     }

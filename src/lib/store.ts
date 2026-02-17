@@ -22,6 +22,8 @@ export interface FullAnalysis {
     id: IkigaiSection
     summary: string
     keywords: string[]
+    clarityScore: number  // 1-10: How clear/developed this pillar is
+    potentialScore: number  // 1-10: Growth potential in this area
   }[]
   intersections: {
     id: string
@@ -37,6 +39,7 @@ export interface FullAnalysis {
     matchReason: string
     firstStep: string
   }[]
+  blindSpot?: string
 }
 
 export interface IkigaiStore {
