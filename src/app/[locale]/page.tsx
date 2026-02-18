@@ -709,10 +709,10 @@ export default function Home() {
               return (
                 <div
                   key={i}
-                  className={`bg-white/50 backdrop-blur-sm rounded-[18px] p-8 md:p-9 border border-white relative overflow-hidden cursor-pointer hover:shadow-[0_12px_40px_rgba(0,0,0,0.06)] ${isExpanded ? 'ring-2' : 'hover:-translate-y-0.5'}`}
+                  className={`bg-white/50 backdrop-blur-sm rounded-[18px] p-8 md:p-9 border relative overflow-hidden cursor-pointer hover:shadow-[0_12px_40px_rgba(0,0,0,0.06)] ${isExpanded ? '' : 'hover:-translate-y-0.5 border-white'}`}
                   style={{ 
                     transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                    ringColor: isExpanded ? card.accent : undefined,
+                    boxShadow: isExpanded ? `0 0 0 2px ${card.accent}` : undefined,
                     borderColor: isExpanded ? card.accent + '40' : undefined
                   }}
                   onClick={() => setExpandedPillar(isExpanded ? null : card.pillarId)}
