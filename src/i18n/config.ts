@@ -7,11 +7,12 @@ export const defaultLocale: Locale = 'en';
 
 export const localeNames: Record<Locale, string> = {
   en: 'English',
-  ru: 'Русский',
-  he: 'עברית',
+  // ru: 'Русский',
+  // he: 'עברית',
 };
 
-export const rtlLocales: Locale[] = ['he'];
+// TODO: Re-enable when Hebrew is added back
+export const rtlLocales: Locale[] = [];
 
 export function isRtlLocale(locale: Locale): boolean {
   return rtlLocales.includes(locale);
