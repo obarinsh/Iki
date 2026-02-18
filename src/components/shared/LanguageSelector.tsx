@@ -13,6 +13,11 @@ export function LanguageSelector() {
   const pathname = usePathname()
   const [isOpen, setIsOpen] = useState(false)
 
+  // Hide selector if only one language is available
+  if (locales.length <= 1) {
+    return null
+  }
+
   const switchLocale = (newLocale: Locale) => {
     // Get the path without the current locale
     const pathWithoutLocale = pathname.replace(`/${locale}`, '') || '/'

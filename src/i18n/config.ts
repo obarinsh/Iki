@@ -1,4 +1,6 @@
-export const locales = ['en', 'ru', 'he'] as const;
+// TODO: Re-enable other languages when translations are complete
+export const locales = ['en'] as const;
+// export const locales = ['en', 'ru', 'he'] as const;
 export type Locale = (typeof locales)[number];
 
 export const defaultLocale: Locale = 'en';
