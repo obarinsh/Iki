@@ -859,6 +859,10 @@ export default function QuestionsPage() {
   
   // Show completion screen
   if (showCompletion) {
+    // Find next pillar for display
+    const currentIndex = SECTIONS.findIndex(s => s.id === currentPillar)
+    const nextPillar = SECTIONS[currentIndex + 1]
+    
     return (
         <div 
           style={{
@@ -869,7 +873,7 @@ export default function QuestionsPage() {
             flexDirection: 'column',
           }}
         >
-          {/* Header */}
+          {/* Header with Save & Exit */}
           <header style={{
             padding: '20px 40px',
             display: 'flex',
@@ -888,7 +892,86 @@ export default function QuestionsPage() {
             >
               iKi
             </a>
+            <button 
+              onClick={handleSaveExit}
+              style={{
+                fontSize: '13px',
+                color: 'rgba(61,46,41,0.4)',
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                fontFamily: "'DM Sans', sans-serif",
+              }}
+            >
+              Save & exit
+            </button>
           </header>
+
+          {/* Progress area - same as questions page */}
+          <div style={{ padding: '0 40px 0', maxWidth: '720px', width: '100%', margin: '0 auto' }}>
+            {/* Section stepper */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0', marginBottom: '8px' }}>
+              {SECTIONS.map((sec, i) => {
+                const isActive = sec.id === currentPillar
+                const isPast = completedPillars.includes(sec.id as IkigaiSection)
+                return (
+                  <div key={sec.id} style={{ display: 'flex', alignItems: 'center', flex: 1 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <div style={{
+                        width: '28px',
+                        height: '28px',
+                        borderRadius: '50%',
+                        background: isActive || isPast ? '#E8614D' : 'rgba(61,46,41,0.06)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: '12px',
+                        fontWeight: 500,
+                        color: isActive || isPast ? '#fff' : 'rgba(61,46,41,0.3)',
+                        transition: 'all 0.3s ease',
+                      }}>
+                        {isPast ? '✓' : i + 1}
+                      </div>
+                      <span style={{
+                        fontSize: '12px',
+                        fontWeight: isActive ? 500 : 300,
+                        color: isActive ? '#3D2E29' : 'rgba(61,46,41,0.35)',
+                        letterSpacing: '0.02em',
+                      }}>
+                        {sec.label}
+                      </span>
+                    </div>
+                    {i < SECTIONS.length - 1 && (
+                      <div style={{
+                        flex: 1,
+                        height: '1px',
+                        margin: '0 12px',
+                        background: isPast ? '#E8614D' : 'rgba(61,46,41,0.08)',
+                      }} />
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+
+            {/* Progress bar */}
+            <div style={{
+              width: '100%',
+              height: '3px',
+              borderRadius: '2px',
+              background: 'rgba(61,46,41,0.06)',
+              marginBottom: '6px',
+              overflow: 'hidden',
+            }}>
+              <div style={{
+                width: `${((currentSectionIndex + 1) / SECTIONS.length) * 100}%`,
+                height: '100%',
+                borderRadius: '2px',
+                background: '#E8614D',
+                transition: 'width 0.4s ease',
+              }} />
+            </div>
+          </div>
 
           {/* Completion content */}
           <div style={{
@@ -938,75 +1021,28 @@ export default function QuestionsPage() {
                 marginBottom: '32px',
                 lineHeight: 1.6,
               }}>
-                {t('completion.description')}
+                Your responses have been saved.
               </p>
               
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                <button
-                  onClick={handleSeeInsight}
-                  style={{
-                    padding: '16px 32px',
-                    background: 'rgba(255,255,255,0.6)',
-                    border: '1px solid rgba(61,46,41,0.1)',
-                    borderRadius: '14px',
-                    fontSize: '15px',
-                    fontWeight: 400,
-                    color: '#3D2E29',
-                    cursor: 'pointer',
-                    fontFamily: "'DM Sans', sans-serif",
-                  }}
-                >
-                  {t('completion.seeInsight')}
-                </button>
-                
-                <button
-                  onClick={handleContinueToNextPillar}
-                  style={{
-                    padding: '16px 32px',
-                    background: '#E8614D',
-                    border: 'none',
-                    borderRadius: '14px',
-                    fontSize: '15px',
-                    fontWeight: 500,
-                    color: '#fff',
-                    cursor: 'pointer',
-                    fontFamily: "'DM Sans', sans-serif",
-                    boxShadow: '0 4px 20px rgba(232,97,77,0.25)',
-                  }}
-                >
-                  {t('completion.continueNext')}
-                </button>
-                
-                <button
-                  onClick={handleSeeResults}
-                  style={{
-                    padding: '12px',
-                    background: 'none',
-                    border: 'none',
-                    fontSize: '14px',
-                    fontWeight: 300,
-                    color: 'rgba(61,46,41,0.4)',
-                    cursor: 'pointer',
-                    fontFamily: "'DM Sans', sans-serif",
-                  }}
-                >
-                  {t('completion.viewResults')}
-                </button>
-              </div>
+              <button
+                onClick={handleContinueToNextPillar}
+                style={{
+                  padding: '16px 48px',
+                  background: '#E8614D',
+                  border: 'none',
+                  borderRadius: '14px',
+                  fontSize: '15px',
+                  fontWeight: 500,
+                  color: '#fff',
+                  cursor: 'pointer',
+                  fontFamily: "'DM Sans', sans-serif",
+                  boxShadow: '0 4px 20px rgba(232,97,77,0.25)',
+                }}
+              >
+                Continue to {nextPillar ? nextPillar.label : 'Results'}
+              </button>
             </motion.div>
           </div>
-
-          {/* Footer */}
-          <footer style={{
-            padding: '24px 40px',
-            borderTop: '1px solid rgba(61,46,41,0.04)',
-            background: '#FFFBF9',
-            textAlign: 'center',
-          }}>
-            <p style={{ fontSize: '12px', color: 'rgba(61,46,41,0.35)', fontWeight: 300 }}>
-              Built with care · Free forever · Your data stays private
-            </p>
-          </footer>
         </div>
     )
   }

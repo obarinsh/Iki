@@ -36,7 +36,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html className={dmSans.variable}>
+    <html className={dmSans.variable} data-scroll-behavior="smooth">
       <head>
         <link 
           rel="preconnect" 

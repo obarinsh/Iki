@@ -314,6 +314,7 @@ export default function Home() {
   const [hoveredPillar, setHoveredPillar] = useState<PillarId | null>(null)
   const [mounted, setMounted] = useState(false)
   const [currentSection, setCurrentSection] = useState('hero')
+  const [expandedPillar, setExpandedPillar] = useState<PillarId | null>(null)
 
   // Section background colors (one shade darker for navbar)
   // Page goes: dark warm (#F0DBC8) → light cream (#FFFBF9)
@@ -469,7 +470,6 @@ export default function Home() {
               >
                 {t('landing.beginJourney')}
               </button>
-              <span className="text-[13px] text-[#3D2E29]/40 font-light">~15 min · {t('common.free')}</span>
             </div>
           </div>
 
@@ -675,6 +675,7 @@ export default function Home() {
                 subtitle: 'Passion & Joy',
                 desc: 'Explore the activities, topics, and moments that make you lose track of time.',
                 accent: '#E8614D',
+                expandedDesc: 'What makes you feel alive? Think about the moments when time disappears — the things you do just because you enjoy them. Explore what excites you, energizes you, and naturally pulls your attention. This is where your real motivation lives.',
               },
               {
                 num: '02',
@@ -683,6 +684,7 @@ export default function Home() {
                 subtitle: 'Talent & Mastery',
                 desc: 'Identify your natural strengths and learned skills others recognize in you.',
                 accent: '#D4784A',
+                expandedDesc: 'Think about your strengths, skills, and abilities — the things you do well and keep improving over time. Explore the talents others recognize in you and the capabilities you\'ve developed.',
               },
               {
                 num: '03',
@@ -691,6 +693,7 @@ export default function Home() {
                 subtitle: 'Purpose & Impact',
                 desc: 'Reflect on the problems that matter and the change you want to create.',
                 accent: '#7BA05B',
+                expandedDesc: 'What kind of change matters to you? Think about the problems you care about and the difference you want to make. Explore how your actions can help others and contribute to something bigger than yourself.',
               },
               {
                 num: '04',
@@ -699,39 +702,72 @@ export default function Home() {
                 subtitle: 'Value & Livelihood',
                 desc: 'Connect your skills and passions to viable opportunities.',
                 accent: '#5B8BA0',
+                expandedDesc: 'Look at what the world is willing to value. Explore opportunities where your skills and interests can provide real impact and support your livelihood.',
               },
-            ].map((card, i) => (
-              <div
-                key={i}
-                className="bg-white/50 backdrop-blur-sm rounded-[18px] p-8 md:p-9 border border-white relative overflow-hidden cursor-pointer hover:-translate-y-0.5 hover:shadow-[0_12px_40px_rgba(0,0,0,0.06)]"
-                style={{ transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)' }}
-                onClick={() => handlePillarClick(card.pillarId)}
-              >
-                <span
-                  style={{ fontFamily: "'Instrument Serif', serif", color: card.accent }}
-                  className="absolute -top-3 right-3 text-[110px] font-normal leading-none pointer-events-none opacity-[0.05]"
+            ].map((card, i) => {
+              const isExpanded = expandedPillar === card.pillarId
+              return (
+                <div
+                  key={i}
+                  className={`bg-white/50 backdrop-blur-sm rounded-[18px] p-8 md:p-9 border border-white relative overflow-hidden cursor-pointer hover:shadow-[0_12px_40px_rgba(0,0,0,0.06)] ${isExpanded ? 'ring-2' : 'hover:-translate-y-0.5'}`}
+                  style={{ 
+                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                    ringColor: isExpanded ? card.accent : undefined,
+                    borderColor: isExpanded ? card.accent + '40' : undefined
+                  }}
+                  onClick={() => setExpandedPillar(isExpanded ? null : card.pillarId)}
                 >
-                  {card.num}
-                </span>
-                <div className="relative pt-2">
                   <span
-                    className="text-[11px] font-medium tracking-wider uppercase block mb-3"
-                    style={{ color: card.accent }}
+                    style={{ fontFamily: "'Instrument Serif', serif", color: card.accent }}
+                    className="absolute top-4 right-8 text-[110px] font-normal leading-none pointer-events-none opacity-[0.05]"
                   >
                     {card.num}
                   </span>
-                  <h3 style={{ fontFamily: "'Instrument Serif', serif" }} className="text-[22px] font-normal text-[#3D2E29] mt-2 mb-1 leading-tight">
-                    {t(`pillars.${card.titleKey}.title`)}
-                  </h3>
-                  <p className="text-[13px] font-normal italic mb-3" style={{ color: card.accent }}>
-                    {card.subtitle}
-                  </p>
-                  <p className="text-[14px] text-[#3D2E29]/55 font-light leading-relaxed">
-                    {card.desc}
-                  </p>
+                  <div className="relative pt-2">
+                    <div className="flex items-center justify-between mb-3">
+                      <span
+                        className="text-[11px] font-medium tracking-wider uppercase"
+                        style={{ color: card.accent }}
+                      >
+                        {card.num}
+                      </span>
+                      <svg 
+                        className={`w-5 h-5 transition-transform duration-300 -mr-5 ${isExpanded ? 'rotate-180' : ''}`}
+                        style={{ color: card.accent }}
+                        fill="none" 
+                        viewBox="0 0 24 24" 
+                        stroke="currentColor"
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </div>
+                    <h3 style={{ fontFamily: "'Instrument Serif', serif" }} className="text-[22px] font-normal text-[#3D2E29] mt-2 mb-1 leading-tight">
+                      {t(`pillars.${card.titleKey}.title`)}
+                    </h3>
+                    <p className="text-[13px] font-normal italic mb-3" style={{ color: card.accent }}>
+                      {card.subtitle}
+                    </p>
+                    <p className="text-[14px] text-[#3D2E29]/55 font-light leading-relaxed">
+                      {card.desc}
+                    </p>
+                    <div 
+                      className="overflow-hidden transition-all duration-300 ease-in-out"
+                      style={{ 
+                        maxHeight: isExpanded ? '200px' : '0px',
+                        opacity: isExpanded ? 1 : 0,
+                        marginTop: isExpanded ? '16px' : '0px'
+                      }}
+                    >
+                      <div className="pt-4 border-t border-[#3D2E29]/10">
+                        <p className="text-[14px] text-[#3D2E29]/70 font-light leading-relaxed">
+                          {card.expandedDesc}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            ))}
+              )
+            })}
           </div>
         </div>
       </section>
@@ -809,9 +845,6 @@ export default function Home() {
         >
           Ready to find your reason for being?
         </h2>
-        <p className="text-[16px] text-[#3D2E29]/35 font-light mb-8">
-          It takes about 15 minutes. No signup required.
-        </p>
         <button
           onClick={handleStartJourney}
           className="px-12 py-4 bg-[#E8614D] text-white rounded-[14px] text-[16px] font-medium shadow-[0_4px_24px_rgba(232,97,77,0.25)] hover:shadow-[0_8px_32px_rgba(232,97,77,0.3)] hover:-translate-y-0.5"
@@ -831,7 +864,7 @@ export default function Home() {
       >
         <span style={{ fontFamily: "'Instrument Serif', serif" }} className="text-[16px] text-[#3D2E29] opacity-40 tracking-wider">iKi</span>
         <p className="text-[12px] text-[#3D2E29]/35 font-light text-center">
-          Built with care · Free forever · Your data stays private
+          Built with care · Your data stays private
         </p>
       </footer>
 

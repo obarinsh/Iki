@@ -44,16 +44,17 @@ function RadarChart({
     return `${pt.x},${pt.y}`
   }).join(" ")
 
-  // Label positions for 4 pillars (top, right, bottom, left)
+  // Label positions for 4 pillars - symmetric distances from graph corners
+  const labelGap = 40 // same distance from each corner
   const labelPositions = [
-    { x: cx, y: 30, anchor: 'middle' as const },      // Top - Love
-    { x: 370, y: cy, anchor: 'end' as const },        // Right - Skills
-    { x: cx, y: 380, anchor: 'middle' as const },     // Bottom - Needs
-    { x: 30, y: cy, anchor: 'start' as const },       // Left - Paid For
+    { x: cx, y: cy - maxR - labelGap },         // Top - Love (40px above top corner)
+    { x: cx + maxR + labelGap, y: cy },         // Right - Skills (40px right of right corner)
+    { x: cx, y: cy + maxR + labelGap },         // Bottom - Needs (40px below bottom corner)
+    { x: cx - maxR - labelGap, y: cy },         // Left - Paid For (40px left of left corner)
   ]
 
   return (
-    <svg viewBox="0 0 400 400" style={{ width: "100%", maxWidth: "380px" }}>
+    <svg viewBox="-30 -10 460 440" style={{ width: "100%", maxWidth: "420px" }}>
       {/* Grid rings */}
       {rings.map((ring) => {
         const r = (ring / 10) * maxR
@@ -76,6 +77,17 @@ function RadarChart({
       <polygon points={potentialPoints} fill="rgba(225,185,55,0.07)" stroke="rgba(196,154,48,0.3)" strokeWidth="1.5" strokeDasharray="6 4" />
       {/* Score area */}
       <polygon points={scorePoints} fill="rgba(232,97,77,0.1)" stroke="#E8614D" strokeWidth="2" />
+      {/* Gold glow filter for labels - soft magical effect */}
+      <defs>
+        <filter id="goldGlow" x="-100%" y="-100%" width="300%" height="300%">
+          <feGaussianBlur stdDeviation="10" result="blur" />
+          <feMerge>
+            <feMergeNode in="blur" />
+            <feMergeNode in="blur" />
+            <feMergeNode in="SourceGraphic" />
+          </feMerge>
+        </filter>
+      </defs>
       {/* Data points */}
       {pillars.map((p, i) => {
         const config = PILLAR_CONFIG[i]
@@ -92,20 +104,51 @@ function RadarChart({
             strokeWidth="2" 
             style={{ transition: "all 0.2s ease", cursor: "pointer" }} 
             onMouseEnter={() => onHover(p.id)} 
-            onMouseLeave={onLeave} 
+            onMouseLeave={onLeave}
+            onClick={() => onHover(p.id)}
           />
         )
       })}
-      {/* Labels */}
+      {/* Labels with gold glow on selected */}
       {pillars.map((p, i) => {
         const config = PILLAR_CONFIG[i]
         const pos = labelPositions[i]
         const isH = hoveredPillar === p.id
         const isO = hoveredPillar && hoveredPillar !== p.id
+        // All labels use middle anchor for perfect centering
+        const textAnchor = 'middle'
+        const ellipseOffsetX = 0
         return (
-          <g key={`l-${i}`} style={{ cursor: "pointer" }} onMouseEnter={() => onHover(p.id)} onMouseLeave={onLeave}>
-            <text x={pos.x} y={pos.y} textAnchor={pos.anchor} style={{ fontFamily: "'DM Sans',sans-serif", fontSize: "12px", fontWeight: 500, fill: isH ? config.color : isO ? "rgba(61,46,41,0.15)" : "rgba(61,46,41,0.55)", transition: "fill 0.25s ease" }}>{config.shortLabel}</text>
-            <text x={pos.x} y={pos.y + 14} textAnchor={pos.anchor} style={{ fontFamily: "'DM Sans',sans-serif", fontSize: "11px", fontWeight: 300, fill: isH ? config.color : isO ? "rgba(61,46,41,0.1)" : "rgba(61,46,41,0.3)", transition: "fill 0.25s ease" }}>{p.score.toFixed(1)}/10</text>
+          <g key={`l-${i}`} style={{ cursor: "pointer" }} onMouseEnter={() => onHover(p.id)} onMouseLeave={onLeave} onClick={() => onHover(p.id)}>
+            {/* Gold oval glow behind selected label - centered on text */}
+            <ellipse
+              cx={pos.x}
+              cy={pos.y + 6}
+              rx={42}
+              ry={26}
+              fill="rgba(225,195,85,0.12)"
+              filter="url(#goldGlow)"
+              style={{
+                opacity: isH ? 1 : 0,
+                transition: "opacity 0.4s ease"
+              }}
+            />
+            {/* Main label */}
+            <text 
+              x={pos.x} 
+              y={pos.y} 
+              textAnchor={textAnchor}
+              style={{ 
+                fontFamily: "'DM Sans',sans-serif", 
+                fontSize: "12px", 
+                fontWeight: 500, 
+                fill: isH ? config.color : isO ? "rgba(61,46,41,0.35)" : "rgba(61,46,41,0.55)", 
+                transition: "fill 0.25s ease" 
+              }}
+            >
+              {config.shortLabel}
+            </text>
+            <text x={pos.x} y={pos.y + 14} textAnchor={textAnchor} style={{ fontFamily: "'DM Sans',sans-serif", fontSize: "11px", fontWeight: 300, fill: isH ? config.color : isO ? "rgba(61,46,41,0.25)" : "rgba(61,46,41,0.3)", transition: "fill 0.25s ease" }}>{p.score.toFixed(1)}/10</text>
           </g>
         )
       })}
@@ -235,7 +278,11 @@ export default function ResultsPage() {
   useEffect(() => {
     if (!fullAnalysis) return
     setTimeout(() => setStmtVisible(true), 600)
-    setTimeout(() => setRevealed(p => new Set([...p, "chart"])), 1800)
+    setTimeout(() => {
+      setRevealed(p => new Set([...p, "chart"]))
+      // Auto-select "love" pillar when chart is revealed
+      setHoveredPillar("love")
+    }, 1800)
     setTimeout(() => setRevealed(p => new Set([...p, "intersections"])), 2400)
     setTimeout(() => setRevealed(p => new Set([...p, "paths"])), 3000)
     setTimeout(() => setRevealed(p => new Set([...p, "actions"])), 3500)
@@ -415,7 +462,7 @@ export default function ResultsPage() {
       }}>
         <div style={{ maxWidth: "900px", margin: "0 auto" }}>
           <p style={{ fontSize: "11px", fontWeight: 500, color: "#E8614D", letterSpacing: "0.14em", textTransform: "uppercase", margin: "0 0 8px" }}>Your Ikigai Radar</p>
-          <p style={{ fontSize: "14px", color: "rgba(61,46,41,0.4)", fontWeight: 300, margin: "0 0 32px" }}>How clear each pillar is — hover to explore</p>
+          <p style={{ fontSize: "14px", color: "rgba(61,46,41,0.4)", fontWeight: 300, margin: "0 0 32px" }}>How clear each pillar is — click the glowing points to explore</p>
 
           <div style={{ display: "grid", gridTemplateColumns: "380px 1fr", gap: "40px", alignItems: "start" }}>
             <div style={{ background: "rgba(255,255,255,0.4)", backdropFilter: "blur(12px)", border: "1px solid rgba(255,255,255,0.6)", borderRadius: "20px", padding: "24px 16px 16px" }}>
@@ -423,7 +470,7 @@ export default function ResultsPage() {
                 pillars={pillarData.map(p => ({ id: p.id, score: p.score, potential: p.potential }))} 
                 hoveredPillar={hoveredPillar} 
                 onHover={setHoveredPillar} 
-                onLeave={() => setHoveredPillar(null)} 
+                onLeave={() => {}} 
               />
               <div style={{ display: "flex", justifyContent: "center", gap: "24px", paddingTop: "8px" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
@@ -462,8 +509,8 @@ export default function ResultsPage() {
               ) : (
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "300px", textAlign: "center" }}>
                   <div>
-                    <p style={{ fontFamily: "'Instrument Serif', serif", fontSize: "20px", color: "rgba(61,46,41,0.12)", fontStyle: "italic", margin: "0 0 8px" }}>Hover a pillar to explore</p>
-                    <p style={{ fontSize: "13px", color: "rgba(61,46,41,0.15)", fontWeight: 300 }}>The gap between solid and dashed shows room to grow</p>
+                    <p style={{ fontFamily: "'Instrument Serif', serif", fontSize: "20px", color: "rgba(61,46,41,0.12)", fontStyle: "italic", margin: "0 0 8px" }}>Click a pillar to explore</p>
+                    <p style={{ fontSize: "13px", color: "rgba(61,46,41,0.15)", fontWeight: 300 }}>Tap the glowing points to learn more about each dimension</p>
                   </div>
                 </div>
               )}

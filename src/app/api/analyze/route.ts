@@ -95,37 +95,48 @@ Generate a JSON response with this structure:
       "id": "love",
       "summary": "2 sentences MAX. Explain the PATTERN of what energizes them - is it creativity, connection, problem-solving? What does this reveal about their core motivation?",
       "keywords": ["keyword1", "keyword2", "keyword3"],
-      "clarityScore": 8.5,
-      "potentialScore": 9.5
+      "clarityScore": "<CALCULATE: 1-10 based on answer specificity>",
+      "potentialScore": "<CALCULATE: 1-10 based on growth room>"
     },
     {
       "id": "good-at",
       "summary": "2 sentences MAX. What's their distinctive skill COMBINATION? What's their 'superpower'?",
       "keywords": ["keyword1", "keyword2", "keyword3"],
-      "clarityScore": 7.0,
-      "potentialScore": 9.0
+      "clarityScore": "<CALCULATE: unique score for this pillar>",
+      "potentialScore": "<CALCULATE: unique score for this pillar>"
     },
     {
       "id": "world-needs",
       "summary": "2 sentences MAX. What problems move them? Who are they drawn to help and why?",
       "keywords": ["keyword1", "keyword2", "keyword3"],
-      "clarityScore": 6.5,
-      "potentialScore": 8.5
+      "clarityScore": "<CALCULATE: unique score for this pillar>",
+      "potentialScore": "<CALCULATE: unique score for this pillar>"
     },
     {
       "id": "paid-for",
       "summary": "2 sentences MAX. What kind of work environment and value creation suits them?",
       "keywords": ["keyword1", "keyword2", "keyword3"],
-      "clarityScore": 5.5,
-      "potentialScore": 8.0
+      "clarityScore": "<CALCULATE: unique score for this pillar>",
+      "potentialScore": "<CALCULATE: unique score for this pillar>"
     }
   ],
   
-  NOTE ON SCORES:
-  - clarityScore (1-10): How clearly defined and self-aware they are about this pillar. High = they know exactly what they want/have. Low = vague, uncertain, or unexplored.
-  - potentialScore (1-10): How much room for growth/development exists. High = lots of untapped potential. Low = already maximized.
+  CRITICAL - SCORING RULES (DO NOT USE EXAMPLE VALUES):
+  Each pillar MUST have UNIQUE scores calculated from THIS user's actual answers. Never use the same scores across tests.
   
-  Score based on: answer depth, specificity, custom answers (show high clarity), contradictions (show low clarity), enthusiasm in word choice.
+  - clarityScore (number 1.0-10.0): How clearly defined and self-aware they are about this pillar.
+    * 8-10: Very specific answers, custom text provided, clear direction
+    * 5-7: Moderate clarity, some specific choices but also vague areas  
+    * 1-4: Vague, uncertain, contradictory, or mostly skipped
+    
+  - potentialScore (number 1.0-10.0): How much room for growth/development exists.
+    * 8-10: Lots of untapped potential, exciting unexplored areas
+    * 5-7: Some growth possible, partially developed
+    * 1-4: Already well-developed or limited expansion possible
+  
+  SCORE FACTORS: answer depth, word count in free text, custom answers (= high clarity), skipped questions (= low clarity), contradictions (= low clarity), enthusiasm in choices.
+  
+  IMPORTANT: Return actual decimal numbers (e.g., 7.2, 5.8, 9.1), NOT placeholder strings.
   
   "intersections": [
     {
