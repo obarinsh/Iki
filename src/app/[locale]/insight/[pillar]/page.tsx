@@ -4,6 +4,7 @@ import { useEffect, useState, useRef } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { useTranslations, useLocale } from 'next-intl'
+import Image from 'next/image'
 import { useIkigaiStore, IkigaiSection } from '@/lib/store'
 import { getPillarById } from '@/lib/questions'
 
@@ -182,14 +183,16 @@ export default function InsightPage() {
         <a 
           href={`/${locale}`}
           style={{
-            fontFamily: "'Instrument Serif', serif",
-            fontSize: '22px',
-            color: '#3D2E29',
-            letterSpacing: '0.08em',
             textDecoration: 'none',
           }}
         >
-          iKi
+          <Image 
+            src="/iki-logo/iki-logo.svg" 
+            alt="iKi" 
+            width={38} 
+            height={25} 
+            style={{ height: '25px', width: 'auto' }}
+          />
         </a>
         <button 
           onClick={handleContinue}

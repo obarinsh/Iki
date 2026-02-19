@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTranslations, useLocale } from 'next-intl'
+import Image from 'next/image'
 import { useIkigaiStore } from '@/lib/store'
 
 // Pillar configuration
@@ -426,7 +427,15 @@ export default function ResultsPage() {
       {/* Header */}
       <header style={{ padding: "24px 40px", background: "linear-gradient(180deg, #F0DBC8 0%, #F0DBCB 100%)" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", maxWidth: "900px", margin: "0 auto" }}>
-          <a href={`/${locale}`} style={{ fontFamily: "'Instrument Serif', serif", fontSize: "22px", color: "#3D2E29", letterSpacing: "0.08em", textDecoration: "none" }}>iKi</a>
+          <a href={`/${locale}`} style={{ textDecoration: "none" }}>
+            <Image 
+              src="/iki-logo/iki-logo.svg" 
+              alt="iKi" 
+              width={38} 
+              height={25} 
+              style={{ height: '25px', width: 'auto' }}
+            />
+          </a>
           <div style={{ display: "flex", gap: "12px" }}>
             <button onClick={handleStartOver} style={{ padding: "8px 20px", background: "none", border: "1px solid rgba(61,46,41,0.1)", borderRadius: "10px", fontSize: "13px", color: "rgba(61,46,41,0.4)", cursor: "pointer", fontFamily: "'DM Sans', sans-serif" }}>Retake</button>
             <button onClick={handleShare} style={{ padding: "8px 20px", background: "#E8614D", border: "none", borderRadius: "10px", fontSize: "13px", color: "#fff", cursor: "pointer", fontFamily: "'DM Sans', sans-serif", fontWeight: 500 }}>Share</button>

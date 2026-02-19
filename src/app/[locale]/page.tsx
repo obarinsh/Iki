@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTranslations, useLocale } from 'next-intl'
+import Image from 'next/image'
 import { LanguageSelector } from '@/components/shared/LanguageSelector'
 import { useIkigaiStore } from '@/lib/store'
 
@@ -416,7 +417,13 @@ export default function Home() {
             backdropFilter: 'blur(8px)'
           }}
         >
-          <span style={{ fontFamily: "'Instrument Serif', serif" }} className="text-[24px] text-[#3D2E29] tracking-wider">iKi</span>
+          <Image 
+              src="/iki-logo/iki-logo.svg" 
+              alt="iKi" 
+              width={45} 
+              height={30} 
+              className="h-[30px] w-auto"
+            />
           <div className="flex gap-4 md:gap-8 items-center">
             <a href="#how" className="hidden md:block text-[13px] text-[#3D2E29]/55 hover:text-[#3D2E29] transition-colors">
               How It Works
